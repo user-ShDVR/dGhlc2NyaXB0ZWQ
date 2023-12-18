@@ -22,9 +22,9 @@ services:
       - rabbitmq
       - postgres
     volumes:
-      - .:/usr/src/app # any change to base folder should be reflected
+      - .:/usr/src/app
       - /usr/src/app/node_modules
-    command: npm run start:dev auth # overrides CMD from dockerfile
+    command: npm run start:dev auth
 
   presence:
     build:
@@ -39,27 +39,9 @@ services:
       - postgres
       - redis
     volumes:
-      - .:/usr/src/app # any change to base folder should be reflected
+      - .:/usr/src/app
       - /usr/src/app/node_modules
-    command: npm run start:dev presence # overrides CMD from dockerfile
-
-  chat:
-    build:
-      context: ./
-      dockerfile: ./apps/chat/Dockerfile
-    ports:
-      - '7000:7000'
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
-      - postgres
-      - redis
-      - presence
-    volumes:
-      - .:/usr/src/app # any change to base folder should be reflected
-      - /usr/src/app/node_modules
-    command: npm run start:dev chat # overrides CMD from dockerfile
+    command: npm run start:dev presence
 
   api:
     build:
@@ -74,7 +56,7 @@ services:
       - auth
       - presence
     volumes:
-      - .:/usr/src/app # any change to base folder should be reflected
+      - .:/usr/src/app
       - /usr/src/app/node_modules
     command: npm run start:dev api
 

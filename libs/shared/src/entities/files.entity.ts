@@ -6,29 +6,26 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity('user')
-export class UserEntity {
+@Entity('file')
+export class FileEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  key: string;
-
   @Column({ unique: true })
-  email: string;
-
-  @Column({ unique: true })
-  hwid: string;
+  filename: string;
 
   @Column()
-  cheatName: string;
+  originalName: string;
 
   @Column()
-  purchaseDate: Date;
-  
-  @Column()
-  activationDate: Date;
+  version: string;
 
   @Column()
-  lastActive: Date;
+  size: number;
+
+  @Column()
+  mimetype: string;
+
+  @Column()
+  uploadDate: Date;
 }
