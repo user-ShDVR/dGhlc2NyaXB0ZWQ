@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeepPartial, Repository, UpdateResult } from 'typeorm';
 import { BaseAbstractRepository } from './base/base.abstract.repository';
 import { UserRepositoryInterface } from '../interfaces/users.repository.interface';
 import { UserEntity } from '../entities/user.entity';
@@ -12,8 +12,23 @@ export class UsersRepository
 {
   constructor(
     @InjectRepository(UserEntity)
-    private readonly UserRepository: Repository<UserEntity>,
+    private readonly userRepository: Repository<UserEntity>,
   ) {
-    super(UserRepository);
+    super(userRepository);
+  }
+
+  public async getCheatnameUsers(cheatName: string): Promise<UserEntity[]> {
+    return await this.userRepository.find({
+      where: {
+        cheatName: cheatName,
+      },
+    });
+  }
+
+  public async setActiveUser(hwid: string, cheatName: string, data: DeepPartial<UserEntity>): Promise<UpdateResult> {
+    return await this.userRepository.update(
+      { hwid: hwid, cheatName: cheatName },
+      data,
+    );
   }
 }

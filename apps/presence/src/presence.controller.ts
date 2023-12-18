@@ -16,21 +16,32 @@ export class PresenceController {
     private readonly sharedService: SharedService,
     private readonly presenceService: PresenceService,
   ) {}
+  
+  @MessagePattern({ cmd: 'get-active-users' })
+  async getActiveUsers(
+    @Ctx() context: RmqContext,
+    @Payload() payload: { cheatname: string },
+  ) {
+    try {
+      this.sharedService.acknowledgeMessage(context);
 
-  @MessagePattern({ cmd: 'get-presence' })
-  async getFoo(@Ctx() context: RmqContext) {
-    this.sharedService.acknowledgeMessage(context);
-
-    return { foo: 1 };
+      return await this.presenceService.getActiveUsers(payload.cheatname);
+    } catch (error) {
+      return error
+    }
   }
 
-  @MessagePattern({ cmd: 'get-active-user' })
-  async getActiveUser(
+  @MessagePattern({ cmd: 'set-active-user' })
+  async setActiveUser(
     @Ctx() context: RmqContext,
-    @Payload() payload: { id: number },
+    @Payload() payload: { cheatName: string, hwid: string },
   ) {
-    this.sharedService.acknowledgeMessage(context);
+    try {
+      this.sharedService.acknowledgeMessage(context);
 
-    return await this.presenceService.getActiveUser(payload.id);
+      return await this.presenceService.setActiveUser(payload.cheatName, payload.hwid);
+    } catch (error) {
+      return error
+    }
   }
 }

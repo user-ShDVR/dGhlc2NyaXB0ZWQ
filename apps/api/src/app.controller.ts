@@ -1,18 +1,12 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
   Inject,
   Param,
   Post,
-  Req,
-  UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
-
-import { AuthGuard, UserInterceptor, UserRequest } from '@app/shared';
+import { ClientProxy, Payload } from '@nestjs/microservices';
 
 @Controller()
 export class AppController {
@@ -23,6 +17,7 @@ export class AppController {
 
   @Get('users')
   async getUsers() {
+    console.log('getUsers');
     return this.authService.send(
       {
         cmd: 'get-users',
@@ -30,91 +25,29 @@ export class AppController {
       {},
     );
   }
-
-  // Note: This would be done already from the main Facebook App thus simple end point provided to simplify this process.
-  @UseGuards(AuthGuard)
-  @UseInterceptors(UserInterceptor)
-  @Post('add-friend/:friendId')
-  async addFriend(
-    @Req() req: UserRequest,
-    @Param('friendId') friendId: number,
-  ) {
-    if (!req?.user) {
-      throw new BadRequestException();
-    }
-
-    return this.authService.send(
-      {
-        cmd: 'add-friend',
-      },
-      {
-        userId: req.user.id,
-        friendId,
-      },
-    );
-  }
-
-  @UseGuards(AuthGuard)
-  @UseInterceptors(UserInterceptor)
-  @Get('get-friends')
-  async getFriends(@Req() req: UserRequest) {
-    if (!req?.user) {
-      throw new BadRequestException();
-    }
-
-    return this.authService.send(
-      {
-        cmd: 'get-friends',
-      },
-      {
-        userId: req.user.id,
-      },
-    );
-  }
-
-  @UseGuards(AuthGuard)
-  @Get('presence')
-  async getPresence() {
+  @Get('activeUsers/:cheatName')
+  async getActiveUsers(@Param('cheatName') cheatName: string,) {
+    console.log(cheatName);
     return this.presenceService.send(
       {
-        cmd: 'get-presence',
-      },
-      {},
-    );
-  }
-
-  @Post('auth/register')
-  async register(
-    @Body('firstName') firstName: string,
-    @Body('lastName') lastName: string,
-    @Body('email') email: string,
-    @Body('password') password: string,
-  ) {
-    return this.authService.send(
-      {
-        cmd: 'register',
+        cmd: 'get-active-users',
       },
       {
-        firstName,
-        lastName,
-        email,
-        password,
+        cheatName
       },
     );
   }
-
-  @Post('auth/login')
-  async login(
-    @Body('email') email: string,
-    @Body('password') password: string,
-  ) {
-    return this.authService.send(
+  @Post('activeUser/:cheatName')
+  async setActiveUsers(@Param('cheatName') cheatName: string, @Body('hwid') hwid: string,) {
+    console.log(cheatName);
+    console.log('setActiveUsers');
+    return this.presenceService.send(
       {
-        cmd: 'login',
+        cmd: 'set-active-user',
       },
       {
-        email,
-        password,
+        cheatName,
+        hwid,
       },
     );
   }

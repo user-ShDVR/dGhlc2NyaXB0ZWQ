@@ -1,21 +1,44 @@
-import { Injectable } from '@nestjs/common';
-
-import { RedisCacheService } from '@app/shared';
-
-import { ActiveUser } from './interfaces/ActiveUser.interface';
+import { UserEntity, UserRepositoryInterface } from '@app/shared';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { Observable, map } from 'rxjs';
 
 @Injectable()
 export class PresenceService {
-  constructor(private readonly cache: RedisCacheService) {}
+  constructor(
+    @Inject('AUTH_SERVICE') private readonly authService: ClientProxy,
+    @Inject('UsersRepositoryInterface')
+    private readonly usersRepository: UserRepositoryInterface,
+  ) {}
 
-  getFoo() {
-    console.log('NOT CACHED!');
-    return { foo: 'bar' };
+  async getActiveUsers(cheatName: string) {
+    const users = await this.usersRepository.getCheatnameUsers(cheatName);
+    const currentTime = new Date();
+    const onlineUsersCount = users.reduce((count, user) => {
+      const lastActiveTime = new Date(user.lastActive);
+      const secondsSinceLastActive =
+        (currentTime.getTime() - lastActiveTime.getTime()) / 1000;
+      if (secondsSinceLastActive <= 120) {
+        return count + 1;
+      }
+      return count;
+    }, 0);
+
+    return onlineUsersCount;
   }
-
-  async getActiveUser(id: number) {
-    const user = await this.cache.get(`user ${id}`);
-
-    return user as ActiveUser | undefined;
+  async setActiveUser(cheatName: string, hwid: string) {
+    const currentTime = new Date();
+    const updatedActivity = await this.usersRepository.setActiveUser(
+      hwid,
+      cheatName,
+      { lastActive: currentTime },
+    );
+    if (updatedActivity.affected === 1) {
+      return 'Active status updated';
+    } else if (updatedActivity.affected === 0) {
+      throw new NotFoundException(
+        `User with hwid ${hwid} not found in cheat users (${cheatName})`,
+      );
+    }
   }
 }

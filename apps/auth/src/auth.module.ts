@@ -9,16 +9,11 @@ import {
   SharedService,
   UserEntity,
   UsersRepository,
-  FriendRequestsRepository,
-  FriendRequestEntity,
-  ConversationEntity,
-  MessageEntity,
 } from '@app/shared';
 
-import { JwtGuard } from './jwt.guard';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { JwtStrategy } from './jwt-strategy';
+import { dataSourceOptions } from './db/data-source';
 
 @Module({
   imports: [
@@ -32,18 +27,21 @@ import { JwtStrategy } from './jwt-strategy';
 
     SharedModule,
     PostgresDBModule,
+    // TypeOrmModule.forRootAsync({
+    //   useFactory: (configService: ConfigService) => ({
+    //     ...dataSourceOptions,
+    //     autoLoadEntities: true,
+    //   }),
+
+    //   inject: [ConfigService],
+    // }),
 
     TypeOrmModule.forFeature([
       UserEntity,
-      FriendRequestEntity,
-      ConversationEntity,
-      MessageEntity,
     ]),
   ],
   controllers: [AuthController],
   providers: [
-    JwtGuard,
-    JwtStrategy,
     {
       provide: 'AuthServiceInterface',
       useClass: AuthService,
@@ -55,10 +53,6 @@ import { JwtStrategy } from './jwt-strategy';
     {
       provide: 'SharedServiceInterface',
       useClass: SharedService,
-    },
-    {
-      provide: 'FriendRequestsRepositoryInterface',
-      useClass: FriendRequestsRepository,
     },
   ],
 })
