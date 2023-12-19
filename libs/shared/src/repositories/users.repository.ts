@@ -17,17 +17,17 @@ export class UsersRepository
     super(userRepository);
   }
 
-  public async getCheatnameUsers(cheatName: string): Promise<UserEntity[]> {
+  public async getCheatnameUsers(product: string): Promise<UserEntity[]> {
     return await this.userRepository.find({
       where: {
-        cheatName: cheatName,
+        product: product,
       },
     });
   }
 
-  public async setActiveUser(hwid: string, cheatName: string, data: DeepPartial<UserEntity>): Promise<UpdateResult> {
+  public async setActiveUser(hwid: string, product: string, data: DeepPartial<UserEntity>): Promise<UpdateResult> {
     return await this.userRepository.update(
-      { hwid: hwid, cheatName: cheatName },
+      { hwid: hwid, product: product },
       data,
     );
   }

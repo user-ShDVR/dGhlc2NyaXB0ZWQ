@@ -21,7 +21,7 @@ export class UserEntity {
   hwid: string;
 
   @Column()
-  cheatName: string;
+  product: string;
 
   @Column()
   purchaseDate: Date;

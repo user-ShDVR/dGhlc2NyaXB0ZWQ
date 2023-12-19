@@ -20,12 +20,11 @@ export class PresenceController {
   @MessagePattern({ cmd: 'get-active-users' })
   async getActiveUsers(
     @Ctx() context: RmqContext,
-    @Payload() payload: { cheatname: string },
+    @Payload() payload: { product: string },
   ) {
     try {
       this.sharedService.acknowledgeMessage(context);
-
-      return await this.presenceService.getActiveUsers(payload.cheatname);
+      return await this.presenceService.getActiveUsers(payload.product);
     } catch (error) {
       return error
     }
@@ -34,12 +33,12 @@ export class PresenceController {
   @MessagePattern({ cmd: 'set-active-user' })
   async setActiveUser(
     @Ctx() context: RmqContext,
-    @Payload() payload: { cheatName: string, hwid: string },
+    @Payload() payload: { product: string, hwid: string },
   ) {
     try {
       this.sharedService.acknowledgeMessage(context);
 
-      return await this.presenceService.setActiveUser(payload.cheatName, payload.hwid);
+      return await this.presenceService.setActiveUser(payload.product, payload.hwid);
     } catch (error) {
       return error
     }

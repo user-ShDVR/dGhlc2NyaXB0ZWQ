@@ -11,8 +11,8 @@ export class PresenceService {
     private readonly usersRepository: UserRepositoryInterface,
   ) {}
 
-  async getActiveUsers(cheatName: string) {
-    const users = await this.usersRepository.getCheatnameUsers(cheatName);
+  async getActiveUsers(product: string) {
+    const users = await this.usersRepository.getCheatnameUsers(product);
     const currentTime = new Date();
     const onlineUsersCount = users.reduce((count, user) => {
       const lastActiveTime = new Date(user.lastActive);
@@ -26,18 +26,18 @@ export class PresenceService {
 
     return onlineUsersCount;
   }
-  async setActiveUser(cheatName: string, hwid: string) {
+  async setActiveUser(product: string, hwid: string) {
     const currentTime = new Date();
     const updatedActivity = await this.usersRepository.setActiveUser(
       hwid,
-      cheatName,
+      product,
       { lastActive: currentTime },
     );
     if (updatedActivity.affected === 1) {
       return 'Active status updated';
     } else if (updatedActivity.affected === 0) {
       throw new NotFoundException(
-        `User with hwid ${hwid} not found in cheat users (${cheatName})`,
+        `User with hwid ${hwid} not found in product users (${product})`,
       );
     }
   }
