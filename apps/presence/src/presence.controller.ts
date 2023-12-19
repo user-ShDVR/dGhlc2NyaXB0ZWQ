@@ -17,7 +17,7 @@ export class PresenceController {
     private readonly presenceService: PresenceService,
   ) {}
   
-  @MessagePattern({ cmd: 'get-active-users' })
+  @MessagePattern('get-active-users')
   async getActiveUsers(
     @Ctx() context: RmqContext,
     @Payload() payload: { product: string },
@@ -30,7 +30,7 @@ export class PresenceController {
     }
   }
 
-  @MessagePattern({ cmd: 'set-active-user' })
+  @MessagePattern('set-active-user')
   async setActiveUser(
     @Ctx() context: RmqContext,
     @Payload() payload: { product: string, hwid: string },

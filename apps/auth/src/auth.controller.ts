@@ -21,7 +21,7 @@ export class AuthController {
     private readonly sharedService: SharedService,
   ) {}
 
-  @MessagePattern({ cmd: 'get-users' })
+  @MessagePattern('get-users')
   async getUsers(@Ctx() context: RmqContext) {
     this.sharedService.acknowledgeMessage(context);
 

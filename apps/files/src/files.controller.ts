@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, UseInterceptors } from '@nestjs/common';
 import {
   Ctx,
   MessagePattern,
@@ -9,6 +9,8 @@ import {
 import { SharedService } from '@app/shared';
 
 import { FilesService } from './files.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { fileStorage } from './storage';
 
 @Controller()
 export class FilesController {
@@ -16,17 +18,29 @@ export class FilesController {
     private readonly sharedService: SharedService,
     private readonly filesService: FilesService,
   ) {}
-  
-  @MessagePattern({ cmd: 'get-test' })
-  async getActiveUsers(
+
+  @MessagePattern('get-file')
+  async getFile(
     @Ctx() context: RmqContext,
     @Payload() payload: { product: string },
   ) {
-    try {
-      this.sharedService.acknowledgeMessage(context);
-      return 'test';
-    } catch (error) {
-      return error
-    }
+    this.sharedService.acknowledgeMessage(context);
+    return 'test';
+  }
+
+  @MessagePattern('upload-file')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: fileStorage,
+    }),
+  )
+  async uploadFile(
+    @Ctx() context: RmqContext,
+    @Payload() payload: { file: Express.Multer.File },
+    
+  ) {
+    this.sharedService.acknowledgeMessage(context);
+    console.log(payload.file)
+    return 'test';
   }
 }

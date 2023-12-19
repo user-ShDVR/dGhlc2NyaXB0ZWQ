@@ -24,5 +24,5 @@ export class AuthService {
   async getCheatnameUsers(cheatName: string): Promise<UserEntity[]> {
     return await this.usersRepository.getCheatnameUsers(cheatName);
   }
-  
+   
 }

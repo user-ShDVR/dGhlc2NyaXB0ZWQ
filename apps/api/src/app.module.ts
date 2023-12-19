@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { SharedModule } from '@app/shared';
 
 import { AppController } from './app.controller';
+import { RequestService } from './request.service';
 
 @Module({
   imports: [
@@ -14,5 +15,6 @@ import { AppController } from './app.controller';
     ),
   ],
   controllers: [AppController],
+  providers: [RequestService],
 })
 export class AppModule {}
