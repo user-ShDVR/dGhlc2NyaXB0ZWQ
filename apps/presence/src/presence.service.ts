@@ -24,7 +24,7 @@ export class PresenceService {
       return count;
     }, 0);
 
-    return onlineUsersCount;
+    return { onlineUsersCount };
   }
   async setActiveUser(product: string, hwid: string) {
     const currentTime = new Date();

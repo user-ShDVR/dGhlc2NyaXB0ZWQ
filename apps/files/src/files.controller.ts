@@ -10,7 +10,8 @@ import { SharedService } from '@app/shared';
 
 import { FilesService } from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { fileStorage } from './storage';
+import { fileStorage } from '../../../libs/shared/src/storage/storage';
+import { IUploadFile } from './interfaces/ActiveUser.interface';
 
 @Controller()
 export class FilesController {
@@ -25,22 +26,25 @@ export class FilesController {
     @Payload() payload: { product: string },
   ) {
     this.sharedService.acknowledgeMessage(context);
-    return 'test';
+    return await this.filesService.getFile(payload.product);
+  }
+
+  @MessagePattern('get-file-version')
+  async getFileVersion(
+    @Ctx() context: RmqContext,
+    @Payload() payload: { product: string },
+  ) {
+    this.sharedService.acknowledgeMessage(context);
+    return await this.filesService.getFileVersion(payload.product);
   }
 
   @MessagePattern('upload-file')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: fileStorage,
-    }),
-  )
   async uploadFile(
     @Ctx() context: RmqContext,
-    @Payload() payload: { file: Express.Multer.File },
+    @Payload() payload: { file: IUploadFile },
     
   ) {
     this.sharedService.acknowledgeMessage(context);
-    console.log(payload.file)
-    return 'test';
+    return await this.filesService.uploadFile(payload.file);
   }
 }

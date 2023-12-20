@@ -1,4 +1,4 @@
-import { DeepPartial, FindManyOptions, FindOneOptions } from 'typeorm';
+import { DeepPartial, FindManyOptions, FindOneOptions, FindOptionsWhere } from 'typeorm';
 
 export interface BaseInterfaceRepository<T> {
   create(data: DeepPartial<T>): T;

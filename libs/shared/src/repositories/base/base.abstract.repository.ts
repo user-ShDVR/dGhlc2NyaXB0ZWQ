@@ -41,7 +41,12 @@ export abstract class BaseAbstractRepository<T extends HasId>
   }
 
   public async findByCondition(filterCondition: FindOneOptions<T>): Promise<T> {
-    return await this.entity.findOne(filterCondition);
+    try {
+      const entity = await this.entity.findOneOrFail(filterCondition);
+      return entity;
+    } catch (error) {
+      throw new Error(`Entity not found: ${error.message}`);
+    }
   }
 
   public async findWithRelations(relations: FindManyOptions<T>): Promise<T[]> {

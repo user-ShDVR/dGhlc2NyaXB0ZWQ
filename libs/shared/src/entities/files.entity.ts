@@ -20,6 +20,9 @@ export class FileEntity {
   @Column()
   version: string;
 
+  @Column({ unique: true })
+  product: string;
+
   @Column()
   size: number;
 
