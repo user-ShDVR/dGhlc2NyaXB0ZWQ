@@ -1,16 +1,13 @@
-import { Controller, UseInterceptors } from '@nestjs/common';
+import { ConflictException, Controller } from '@nestjs/common';
 import {
   Ctx,
   MessagePattern,
   Payload,
   RmqContext,
+  RpcException,
 } from '@nestjs/microservices';
-
 import { SharedService } from '@app/shared';
-
 import { FilesService } from './files.service';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { fileStorage } from '../../../libs/shared/src/storage/storage';
 import { IUploadFile } from './interfaces/ActiveUser.interface';
 
 @Controller()
@@ -42,9 +39,17 @@ export class FilesController {
   async uploadFile(
     @Ctx() context: RmqContext,
     @Payload() payload: { file: IUploadFile },
-    
   ) {
     this.sharedService.acknowledgeMessage(context);
-    return await this.filesService.uploadFile(payload.file);
+    try {
+      const result = await this.filesService.uploadFile(payload.file);
+      return result;
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw new RpcException({ statusCode: 409, message: "Такой файл уже загружен, вы можете обновить файл в личном кабинете либо загрузить файл под новым продуктом" });
+      } else {
+        throw error; // Пробросить другие исключения
+      }
+    }
   }
 }

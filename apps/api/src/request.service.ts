@@ -13,15 +13,13 @@ export class RequestService {
   ): Observable<TResult> {
     return transport.send<TResult>(message, data ? data : {}).pipe(
       timeout(this.timeout),
-      retry(this.retries),
       catchError((err) => {
-        console.log(err)
         console.log(
           '\x1b[31m',
           `Ошибка при отправке запроса: ${err.message === undefined? err : err.message} по пути ${message}`,
           '\x1b[0m',
         );
-        throw new BadGatewayException(err);
+        throw err;
       }),
     );
   }

@@ -1,8 +1,7 @@
-import { FileRepositoryInterface, UserEntity, UserRepositoryInterface } from '@app/shared';
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
-import { Observable, map } from 'rxjs';
+import { FileRepositoryInterface } from '@app/shared';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { IUploadFile } from './interfaces/ActiveUser.interface';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class FilesService {
@@ -12,34 +11,45 @@ export class FilesService {
   ) {}
 
   async getFile(product: string) {
-    try {
-      const res = await this.fileRepository.findByCondition({ where: { product} }); 
-      return res;
-    } catch (error) {
-      return error;
+    const res = await this.fileRepository.findByCondition({
+      where: { product },
+    });
+    if (res === null) {
+      throw new RpcException({ statusCode: 404, message: 'File not found' });
     }
+
+    return res;
   }
 
   async getFileVersion(product: string) {
-    try {
-      const res = await this.fileRepository.findByCondition({ where: { product} }); 
-      return { version: res.version };
-    } catch (error) {
-      return error;
+    const res = await this.fileRepository.findByCondition({
+      where: { product },
+    });
+    if (res === null) {
+      throw new RpcException({ statusCode: 404, message: 'File not found' });
     }
+
+    return {version: res.version};
   }
 
   async uploadFile(file: IUploadFile) {
     const fileExtName = file.originalname.split('.').pop();
-    const currentTime = new Date();
-    return this.fileRepository.save({
-      product: `${file.product}.${fileExtName}`,
-      filename: file.filename,
-      originalName: file.originalname,
-      mimetype: file.mimetype,
-      size: file.size,
-      version: file.version,
-      uploadDate: currentTime
-    });  
+    const res = await this.fileRepository.findByConditionWithoutFail({
+      where: { product: `${file.product}.${fileExtName}` },
+    });
+    if (res) {
+      throw new ConflictException();
+    } else {
+      const currentTime = new Date();
+      return this.fileRepository.save({
+        product: `${file.product}.${fileExtName}`,
+        filename: file.filename,
+        originalName: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size,
+        version: file.version,
+        uploadDate: currentTime,
+      });
+    }
   }
 }

@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 
 import { BaseInterfaceRepository } from './base.interface.repository';
+import { RpcException } from '@nestjs/microservices';
 
 interface HasId {
   id: number;
@@ -43,9 +44,18 @@ export abstract class BaseAbstractRepository<T extends HasId>
   public async findByCondition(filterCondition: FindOneOptions<T>): Promise<T> {
     try {
       const entity = await this.entity.findOneOrFail(filterCondition);
-      return entity;
+      return entity || null; 
     } catch (error) {
-      throw new Error(`Entity not found: ${error.message}`);
+      return null; 
+    }
+  }
+  
+  public async findByConditionWithoutFail(filterCondition: FindOneOptions<T>): Promise<T> {
+    try {
+      const entity = await this.entity.findOne(filterCondition);
+      return entity || null; 
+    } catch (error) {
+      return null; 
     }
   }
 
