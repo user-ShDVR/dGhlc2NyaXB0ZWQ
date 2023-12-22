@@ -44,6 +44,18 @@ export class AppController {
     );
   }
 
+  @Post('createUser/:product')
+  async createUser(
+    @Param('product') product: string,
+    @Body('hwid') hwid: string,
+  ) {
+    return this.requestService.sendRequest(
+      this.authService,
+      'create-user',
+      { product, hwid },
+    );
+  }
+
   @Post('activeUser/:product')
   async setActiveUsers(
     @Param('product') product: string,

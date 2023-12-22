@@ -1,9 +1,10 @@
-import { Controller, UseGuards, Inject } from '@nestjs/common';
+import { Controller, UseGuards, Inject, ConflictException } from '@nestjs/common';
 import {
   Ctx,
   MessagePattern,
   Payload,
   RmqContext,
+  RpcException,
 } from '@nestjs/microservices';
 
 import { SharedService } from '@app/shared';
@@ -28,10 +29,18 @@ export class AuthController {
     return this.authService.getUsers();
   }
 
-  @MessagePattern({ cmd: 'get-cheatname-users' })
-  async getCheatnameUsers(@Ctx() context: RmqContext, @Payload() payload: { cheatName: string }) {
+  @MessagePattern('create-user')
+  async createUser(@Ctx() context: RmqContext, @Payload() payload: { product: string, hwid: string, }) {
     this.sharedService.acknowledgeMessage(context);
-
-    return this.authService.getCheatnameUsers(payload.cheatName);
+    try {
+      return await this.authService.createUser(payload.product, payload.hwid);
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw new RpcException({ statusCode: 409, message: "Такой пользователь уже существует в данном продукте" });
+      } else {
+        throw error; 
+      }
+    }
+    
   }
 }
