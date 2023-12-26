@@ -1,9 +1,10 @@
-import { Controller } from '@nestjs/common';
+import { ConflictException, Controller } from '@nestjs/common';
 import {
   Ctx,
   MessagePattern,
   Payload,
   RmqContext,
+  RpcException,
 } from '@nestjs/microservices';
 
 import { SharedService } from '@app/shared';
@@ -40,7 +41,11 @@ export class PresenceController {
 
       return await this.presenceService.setActiveUser(payload.product, payload.hwid);
     } catch (error) {
-      return error
+      if (error instanceof ConflictException) {
+        throw new RpcException({ statusCode: 409, message: "Такой пользователь уже существует в данном продукте" });
+      } else {
+        throw error; 
+      }
     }
   }
 }
