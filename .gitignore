@@ -1,6 +1,6 @@
 # compiled output
 /dist
-/uploads
+/uploads/*
 /node_modules
 /db/data
 /redis/data
