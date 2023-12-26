@@ -20,7 +20,10 @@ import { Response } from 'express';
 import { fileStorage } from '@app/shared/storage/storage';
 import { Observable, Observer } from 'rxjs';
 import { ApiKeyGuard } from '@app/shared/guards/api-key.guard';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CreateUserDto } from './dto/create-user-dto';
+import { SetActiveUserDto } from './dto/set-active-user-dto';
+import { UploadFileDto } from './dto/upload-file-dto';
 
 @Controller()
 export class AppController {
@@ -46,27 +49,29 @@ export class AppController {
     );
   }
   @ApiTags('users')
+  @ApiOperation({ summary: 'Create user' })
   @Post('createUser/:product')
   async createUser(
     @Param('product') product: string,
-    @Body('hwid') hwid: string,
+    @Body() createUserDto: CreateUserDto,
   ) {
     return this.requestService.sendRequest(
       this.authService,
       'create-user',
-      { product, hwid },
+      { product, hwid: createUserDto.hwid },
     );
   }
   @ApiTags('online')
+  @ApiOperation({ summary: 'Set active user' })
   @Post('activeUser/:product')
   async setActiveUsers(
     @Param('product') product: string,
-    @Body('hwid') hwid: string,
+    @Body() setActiveUser: SetActiveUserDto,
   ) {
     return this.requestService.sendRequest(
       this.presenceService,
       'set-active-user',
-      { product, hwid },
+      { product, hwid: setActiveUser.hwid },
     );
   }
   @ApiTags('files')
@@ -111,6 +116,12 @@ export class AppController {
     );
   }
   @ApiTags('files')
+  @ApiConsumes('multipart/form-data') 
+  @ApiHeader({
+    name: 'x-api-key',
+    description: 'Ключ для загрузки',
+    required: true,
+  })
   @Post('files/:product')
   @UseGuards(ApiKeyGuard)
   @UseInterceptors(
@@ -130,10 +141,10 @@ export class AppController {
     )
     file: Express.Multer.File,
     @Param('product') product: string,
-    @Body('version') version: string,
+    @Body() uploadFile: UploadFileDto,
   ) {
     return this.requestService.sendRequest(this.filesService, 'upload-file', {
-      file: { product, version, ...file },
+      file: { product, version: uploadFile.version, ...file },
     });
   }
 }
