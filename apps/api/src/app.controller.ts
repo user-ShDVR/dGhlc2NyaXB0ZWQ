@@ -20,6 +20,7 @@ import { Response } from 'express';
 import { fileStorage } from '@app/shared/storage/storage';
 import { Observable, Observer } from 'rxjs';
 import { ApiKeyGuard } from '@app/shared/guards/api-key.guard';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller()
 export class AppController {
@@ -29,12 +30,13 @@ export class AppController {
     @Inject('FILES_SERVICE') private readonly filesService: ClientProxy,
     private requestService: RequestService,
   ) {}
-
+  @ApiTags('users')
   @Get('users')
   async getUsers() {
     return this.requestService.sendRequest(this.authService, 'get-users');
   }
 
+  @ApiTags('online')
   @Get('activeUsers/:product')
   async getActiveUsers(@Param('product') product: string) {
     return this.requestService.sendRequest(
@@ -43,7 +45,7 @@ export class AppController {
       { product },
     );
   }
-
+  @ApiTags('users')
   @Post('createUser/:product')
   async createUser(
     @Param('product') product: string,
@@ -55,7 +57,7 @@ export class AppController {
       { product, hwid },
     );
   }
-
+  @ApiTags('online')
   @Post('activeUser/:product')
   async setActiveUsers(
     @Param('product') product: string,
@@ -67,7 +69,7 @@ export class AppController {
       { product, hwid },
     );
   }
-
+  @ApiTags('files')
   @Get('file/:product')
   async getFile(@Param('product') product: string, @Res() res: Response) {
     const file$: Observable<any> = this.requestService.sendRequest(
@@ -99,7 +101,7 @@ export class AppController {
 
     file$.subscribe(observer);
   }
-
+  @ApiTags('files')
   @Get('fileVersion/:product')
   async getFileVersion(@Param('product') product: string) {
     return this.requestService.sendRequest(
@@ -108,7 +110,7 @@ export class AppController {
       { product },
     );
   }
-
+  @ApiTags('files')
   @Post('files/:product')
   @UseGuards(ApiKeyGuard)
   @UseInterceptors(
