@@ -132,7 +132,7 @@ export class AppController {
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
           fileType:
-            /^(application\/x-msdos-program|application\/x-dosexec|application\/octet-stream)$/,
+          /^(application\/x-msdownload|application\/x-msdos-program|application\/x-dosexec|application\/octet-stream)$/,
         })
         .addMaxSizeValidator({ maxSize: 25 * 1024 * 1024 })
         .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
@@ -170,7 +170,7 @@ export class AppController {
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
           fileType:
-            /^(application\/x-msdos-program|application\/x-dosexec|application\/octet-stream)$/,
+            /^(application\/x-msdownload|application\/x-msdos-program|application\/x-dosexec|application\/octet-stream)$/,
         })
         .addMaxSizeValidator({ maxSize: 25 * 1024 * 1024 })
         .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
