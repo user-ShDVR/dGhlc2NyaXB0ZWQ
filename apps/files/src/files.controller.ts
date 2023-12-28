@@ -1,4 +1,4 @@
-import { ConflictException, Controller } from '@nestjs/common';
+import { ConflictException, Controller, NotFoundException } from '@nestjs/common';
 import {
   Ctx,
   MessagePattern,
@@ -47,6 +47,24 @@ export class FilesController {
     } catch (error) {
       if (error instanceof ConflictException) {
         throw new RpcException({ statusCode: 409, message: "Такой файл уже загружен, вы можете обновить файл в личном кабинете либо загрузить файл под новым продуктом" });
+      } else {
+        throw error; // Пробросить другие исключения
+      }
+    }
+  }
+
+  @MessagePattern('update-file')
+  async updateFile(
+    @Ctx() context: RmqContext,
+    @Payload() payload: { file: IUploadFile },
+  ) {
+    this.sharedService.acknowledgeMessage(context);
+    try {
+      const result = await this.filesService.updateFile(payload.file);
+      return result;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new RpcException({ statusCode: 404, message: "Такого фала не существует, попробуйте загрузить новый!" });
       } else {
         throw error; // Пробросить другие исключения
       }

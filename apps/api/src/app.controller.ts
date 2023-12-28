@@ -20,7 +20,13 @@ import { Response } from 'express';
 import { fileStorage } from '@app/shared/storage/storage';
 import { Observable, Observer } from 'rxjs';
 import { ApiKeyGuard } from '@app/shared/guards/api-key.guard';
-import { ApiBody, ApiConsumes, ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiHeader,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user-dto';
 import { SetActiveUserDto } from './dto/set-active-user-dto';
 import { UploadFileDto } from './dto/upload-file-dto';
@@ -55,11 +61,10 @@ export class AppController {
     @Param('product') product: string,
     @Body() createUserDto: CreateUserDto,
   ) {
-    return this.requestService.sendRequest(
-      this.authService,
-      'create-user',
-      { product, hwid: createUserDto.hwid },
-    );
+    return this.requestService.sendRequest(this.authService, 'create-user', {
+      product,
+      hwid: createUserDto.hwid,
+    });
   }
   @ApiTags('online')
   @ApiOperation({ summary: 'Set active user' })
@@ -77,34 +82,27 @@ export class AppController {
   @ApiTags('files')
   @Get('file/:product')
   async getFile(@Param('product') product: string, @Res() res: Response) {
-    const file$: Observable<any> = this.requestService.sendRequest(
-      this.filesService,
-      'get-file',
-      { product },
-    );
-
-    const observer: Observer<any> = {
-      next: (result) => {
-        const filePath = join(
-          __dirname,
-          '..',
-          '..',
-          '..',
-          '..',
-          '..',
-          '..',
-          'uploads',
-          result.filename,
-        );
-        res.sendFile(filePath);
-      },
-      error: (error) => {
-        res.status(error.statusCode).send(error);
-      },
-      complete: () => {},
-    };
-
-    file$.subscribe(observer);
+      const file: any = await this.requestService.sendRequest(
+        this.filesService,
+        'get-file',
+        { product },
+      );
+      const filePath = join(
+        __dirname,
+        '..',
+        '..',
+        '..',
+        '..',
+        '..',
+        '..',
+        'uploads',
+        file.filename,
+      );
+      res.header(
+        'Content-Disposition',
+        `attachment; filename=${file.originalName}`,
+      );
+      return res.sendFile(filePath);
   }
   @ApiTags('files')
   @Get('fileVersion/:product')
@@ -116,13 +114,13 @@ export class AppController {
     );
   }
   @ApiTags('files')
-  @ApiConsumes('multipart/form-data') 
+  @ApiConsumes('multipart/form-data')
   @ApiHeader({
     name: 'x-api-key',
     description: 'Ключ для загрузки',
     required: true,
   })
-  @Post('files/:product')
+  @Post('file/:product')
   @UseGuards(ApiKeyGuard)
   @UseInterceptors(
     FileInterceptor('file', {
@@ -134,7 +132,7 @@ export class AppController {
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
           fileType:
-            /^(application\/x-msdos-program|application\/octet-stream)$/,
+            /^(application\/x-msdos-program|application\/x-dosexec|application\/octet-stream)$/,
         })
         .addMaxSizeValidator({ maxSize: 25 * 1024 * 1024 })
         .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
@@ -143,8 +141,52 @@ export class AppController {
     @Param('product') product: string,
     @Body() uploadFile: UploadFileDto,
   ) {
-    return this.requestService.sendRequest(this.filesService, 'upload-file', {
-      file: { product, version: uploadFile.version, ...file },
-    });
+
+      const res = await this.requestService.sendRequest(
+        this.filesService,
+        'upload-file',
+        {
+          file: { product, version: uploadFile.version, ...file },
+        },
+      );
+      return res;
+  }
+  @ApiTags('files')
+  @ApiConsumes('multipart/form-data')
+  @ApiHeader({
+    name: 'x-api-key',
+    description: 'Ключ для загрузки',
+    required: true,
+  })
+  @Post('fileUpdate/:product')
+  @UseGuards(ApiKeyGuard)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: fileStorage,
+    }),
+  )
+  async updateFile(
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType:
+            /^(application\/x-msdos-program|application\/x-dosexec|application\/octet-stream)$/,
+        })
+        .addMaxSizeValidator({ maxSize: 25 * 1024 * 1024 })
+        .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
+    )
+    file: Express.Multer.File,
+    @Param('product') product: string,
+    @Body() uploadFile: UploadFileDto,
+  ) {
+
+      const res = await this.requestService.sendRequest(
+        this.filesService,
+        'update-file',
+        {
+          file: { product, version: uploadFile.version, ...file },
+        },
+      );
+      return res;
   }
 }
