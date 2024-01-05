@@ -51,6 +51,7 @@ export class PresenceService {
         } else {
           const newStatistic = this.userStatisticRepository.create({
             totalRuntime: 1,
+            firstRunDate: currentTime,
             user: user,
           });
   
