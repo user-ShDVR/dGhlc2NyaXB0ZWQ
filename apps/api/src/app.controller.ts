@@ -30,6 +30,7 @@ import {
 import { CreateUserDto } from './dto/create-user-dto';
 import { SetActiveUserDto } from './dto/set-active-user-dto';
 import { UploadFileDto } from './dto/upload-file-dto';
+import { unlinkSync } from 'fs';
 
 @Controller()
 export class AppController {
@@ -150,6 +151,7 @@ export class AppController {
         },
       );
       return res;
+      // unlinkSync(`./uploads/${file.filename}`); // [ShDVR]: #TODO обернуть trycatch и при ошибке удалять файл
   }
   @ApiTags('files')
   @ApiConsumes('multipart/form-data')
@@ -188,5 +190,6 @@ export class AppController {
         },
       );
       return res;
+      // unlinkSync(`./uploads/${file.filename}`);  // [ShDVR]: #TODO обернуть trycatch и при ошибке удалять файл
   }
 }

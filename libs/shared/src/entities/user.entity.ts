@@ -1,8 +1,6 @@
 import {
   Column,
   Entity,
-  ManyToMany,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -17,7 +15,7 @@ export class UserEntity {
   @Column()
   email: string;
 
-  @Column({ unique: true })
+  @Column()
   hwid: string;
 
   @Column()

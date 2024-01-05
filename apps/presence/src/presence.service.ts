@@ -1,7 +1,6 @@
-import { UserEntity, UserRepositoryInterface } from '@app/shared';
+import { UserEntity, UserRepositoryInterface, UserStatisticRepositoryInterface } from '@app/shared';
 import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { Observable, map } from 'rxjs';
 
 @Injectable()
 export class PresenceService {
@@ -9,6 +8,8 @@ export class PresenceService {
     @Inject('AUTH_SERVICE') private readonly authService: ClientProxy,
     @Inject('UsersRepositoryInterface')
     private readonly usersRepository: UserRepositoryInterface,
+    @Inject('UserStatisticRepositoryInterface')
+    private readonly userStatisticRepository: UserStatisticRepositoryInterface,
   ) {}
 
   async getActiveUsers(product: string) {
@@ -33,10 +34,36 @@ export class PresenceService {
       product,
       { lastActive: currentTime },
     );
+  
     if (updatedActivity.affected === 1) {
-      return 'Active status updated';
+      const user = await this.usersRepository.findByConditionWithoutFail({
+        where: { product, hwid },
+      });
+  
+      if (user) {
+        const userStatistic = await this.userStatisticRepository.findByConditionWithoutFail({
+          where: { user: user },
+        });
+  
+        if (userStatistic) {
+          userStatistic.totalRuntime += 1;
+          await this.userStatisticRepository.save(userStatistic);
+        } else {
+          const newStatistic = this.userStatisticRepository.create({
+            totalRuntime: 1,
+            user: user,
+          });
+  
+          await this.userStatisticRepository.save(newStatistic);
+        }
+  
+        return 'Active status updated';
+      } else {
+        // Обработка ошибки, если пользователь не найден
+        throw new NotFoundException('User not found');
+      }
     } else if (updatedActivity.affected === 0) {
-      return await this.createUser(product, hwid)
+      return await this.createUser(product, hwid);
     }
   }
   async createUser(product: string, hwid: string): Promise<UserEntity> {
@@ -44,12 +71,26 @@ export class PresenceService {
     const res = await this.usersRepository.findByConditionWithoutFail({
       where: { product: product, hwid: hwid },
     });
-    console.log(res)
+
     if (res) {
       throw new ConflictException();
     } else {
       const currentTime = new Date();
-      return await this.usersRepository.save({product, hwid, lastActive: currentTime, activationDate: currentTime, email: 'noemail.com', key: '123123', purchaseDate: currentTime  });
+      const newUser = await this.usersRepository.save({product, hwid, lastActive: currentTime, activationDate: currentTime, email: 'noemail.com', key: '123123', purchaseDate: currentTime  });
+      const userStatistic = await this.userStatisticRepository.findByConditionWithoutFail({
+        where: { user: newUser },
+      });
+  
+      // Если записи нет, создаем новую и устанавливаем firstRunDate
+      if (!userStatistic) {
+        const newStatistic = this.userStatisticRepository.create({
+          firstRunDate: currentTime,
+          user: newUser,
+        });
+  
+        await this.userStatisticRepository.save(newStatistic);
+      }
+      return newUser
     }
   }
 }

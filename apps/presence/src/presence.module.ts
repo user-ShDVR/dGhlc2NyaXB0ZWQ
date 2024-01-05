@@ -5,6 +5,8 @@ import {
   PostgresDBModule,
   UserEntity,
   UsersRepository,
+  UserStatisticRepository,
+  UserStatisticEntity,
 } from '@app/shared';
 
 import { PresenceController } from './presence.controller';
@@ -15,7 +17,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   imports: [
     PostgresDBModule,
     SharedModule.registerRmq('AUTH_SERVICE', process.env.RABBITMQ_AUTH_QUEUE),
-    TypeOrmModule.forFeature([UserEntity]),
+    TypeOrmModule.forFeature([UserEntity,UserStatisticEntity]),
   ],
   controllers: [PresenceController],
   providers: [
@@ -23,6 +25,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     {
       provide: 'UsersRepositoryInterface',
       useClass: UsersRepository,
+    },
+    {
+      provide: 'UserStatisticRepositoryInterface',
+      useClass: UserStatisticRepository,
     },
   ],
 })

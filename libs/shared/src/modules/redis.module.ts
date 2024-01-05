@@ -5,6 +5,7 @@ import { redisStore } from 'cache-manager-redis-yet';
 
 import { RedisCacheService } from '../services/redis-cache.service';
 
+// [ShDVR]: #TODO сделать кэширование запросов при бете для ускорения ответа
 @Module({
   imports: [
     CacheModule.registerAsync({

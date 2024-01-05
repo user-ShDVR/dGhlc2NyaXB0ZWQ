@@ -9,26 +9,26 @@ import {
 @Entity('file')
 export class FileEntity {
   @PrimaryGeneratedColumn()
-  id: number;
+  id: number; // [ShDVR]: #Note / ID
+
+  @Column({ unique: true })   
+  filename: string; // [ShDVR]: #Note / Уникальное имя приложения которое генерируем при получении файла
+
+  @Column()
+  originalName: string; // [ShDVR]: #Note / Имя приложения которое было изначально при загрузке на сервер
+
+  @Column()
+  version: string; // [ShDVR]: #Note / Версия приложения
 
   @Column({ unique: true })
-  filename: string;
+  product: string; // [ShDVR]: #Note / Имя продукта от которого само приложение
 
   @Column()
-  originalName: string;
+  size: number; // [ShDVR]: #Note / Размер приложения
 
   @Column()
-  version: string;
-
-  @Column({ unique: true })
-  product: string;
+  mimetype: string; // [ShDVR]: #Note / Тип приложения
 
   @Column()
-  size: number;
-
-  @Column()
-  mimetype: string;
-
-  @Column()
-  uploadDate: Date;
+  uploadDate: Date; // [ShDVR]: #Note / Дата загрузки
 }

@@ -7,7 +7,6 @@ import {
 } from 'typeorm';
 
 import { BaseInterfaceRepository } from './base.interface.repository';
-import { RpcException } from '@nestjs/microservices';
 
 interface HasId {
   id: number;
