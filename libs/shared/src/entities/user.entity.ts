@@ -26,6 +26,9 @@ export class UserEntity {
   
   @Column()
   activationDate: Date;
+  
+  @Column({ type: 'timestamp without time zone' })
+  keyExpirationDate: Date;
 
   @Column()
   lastActive: Date;

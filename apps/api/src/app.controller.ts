@@ -77,7 +77,7 @@ export class AppController {
     return this.requestService.sendRequest(
       this.presenceService,
       'set-active-user',
-      { product, hwid: setActiveUser.hwid },
+      { product, hwid: setActiveUser.hwid, key: setActiveUser.key },
     );
   }
   @ApiTags('files')
