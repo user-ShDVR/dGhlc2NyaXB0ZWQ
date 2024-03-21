@@ -31,26 +31,20 @@ export class AuthService {
     }
     return result;
   }
-  async createUser(product: string, hwid: string): Promise<UserEntity> {
-    const res = await this.usersRepository.findByConditionWithoutFail({
-      where: { product: product, hwid: hwid },
-    });
-    console.log(res);
+  async createUser(product: string, email: string): Promise<UserEntity> {
+    const res = await this.usersRepository.findByProductAndEmail(
+      product,
+      email,
+    );
     if (res) {
-      throw new ConflictException();
+      throw new ConflictException(); // #TODO Если у нас есть пользователь то мы обновляем ключ
     } else {
       const currentTime = new Date();
-      const expirationDate = new Date();
-      expirationDate.setDate(currentTime.getDate() + 30); 
       const key = await this.generateKey(16);
       return await this.usersRepository.save({
         product,
-        hwid,
-        lastActive: currentTime,
-        activationDate: currentTime,
-        email: 'noemail.com',
+        email: email,
         key: key,
-        keyExpirationDate: expirationDate,
         purchaseDate: currentTime,
       });
     }

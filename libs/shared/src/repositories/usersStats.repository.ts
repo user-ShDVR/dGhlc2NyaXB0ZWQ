@@ -16,5 +16,4 @@ export class UserStatisticRepository
   ) {
     super(userStatisticRepository);
   }
-
 }

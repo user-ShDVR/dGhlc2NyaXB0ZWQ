@@ -16,10 +16,9 @@ export class UserStatisticEntity {
   totalRuntime: number; // [ShDVR]: #Note / общее время работы приложения в минутах
 
   @Column()
-  firstRunDate: Date;  // [ShDVR]: #Note / дата первого запуска приложения
+  firstRunDate: Date; // [ShDVR]: #Note / дата первого запуска приложения
 
   @OneToOne(() => UserEntity)
   @JoinColumn()
   user: UserEntity;
-  
 }

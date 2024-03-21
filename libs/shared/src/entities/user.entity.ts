@@ -1,8 +1,4 @@
-import {
-  Column,
-  Entity,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('user')
 export class UserEntity {
@@ -15,7 +11,7 @@ export class UserEntity {
   @Column()
   email: string;
 
-  @Column()
+  @Column({ nullable: true })
   hwid: string;
 
   @Column()
@@ -23,13 +19,13 @@ export class UserEntity {
 
   @Column()
   purchaseDate: Date;
-  
-  @Column()
+
+  @Column({ nullable: true })
   activationDate: Date;
-  
-  @Column({ type: 'timestamp without time zone' })
+
+  @Column({ type: 'timestamp without time zone', nullable: true })
   keyExpirationDate: Date;
 
-  @Column()
+  @Column({ nullable: true })
   lastActive: Date;
 }

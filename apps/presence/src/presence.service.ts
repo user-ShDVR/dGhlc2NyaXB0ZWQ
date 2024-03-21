@@ -40,18 +40,30 @@ export class PresenceService {
 
   async setActiveUser(product: string, hwid: string, key: string) {
     const user = await this.usersRepository.findByConditionWithoutFail({
-      where: { product: product, hwid: hwid, key: key },
+      where: { product: product, key: key },
     });
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    if (user.keyExpirationDate > new Date()) {
+    if (user.keyExpirationDate > new Date() || user.keyExpirationDate == null) {
       const currentTime = new Date();
-      const updatedActivity = await this.usersRepository.setActiveUser(
-        hwid,
-        product,
-        { lastActive: currentTime },
-      );
+      if (user.keyExpirationDate == null) {
+        const expirationDate = new Date();
+        expirationDate.setDate(currentTime.getDate() + 30);
+        Object.assign(user, {
+          lastActive: currentTime,
+          activationDate: currentTime,
+          keyExpirationDate: expirationDate,
+          hwid,
+        });
+        const updatedActivity = await this.usersRepository.save(user);
+      } else {
+        Object.assign(user, {
+          lastActive: currentTime,
+          hwid,
+        });
+        const updatedActivity = await this.usersRepository.save(user);
+      }
 
       const userStatistic =
         await this.userStatisticRepository.findByConditionWithoutFail({

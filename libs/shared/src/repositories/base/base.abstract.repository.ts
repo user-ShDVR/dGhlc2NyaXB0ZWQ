@@ -43,18 +43,20 @@ export abstract class BaseAbstractRepository<T extends HasId>
   public async findByCondition(filterCondition: FindOneOptions<T>): Promise<T> {
     try {
       const entity = await this.entity.findOneOrFail(filterCondition);
-      return entity || null; 
+      return entity || null;
     } catch (error) {
-      return null; 
+      return null;
     }
   }
-  
-  public async findByConditionWithoutFail(filterCondition: FindOneOptions<T>): Promise<T> {
+
+  public async findByConditionWithoutFail(
+    filterCondition: FindOneOptions<T>,
+  ): Promise<T> {
     try {
       const entity = await this.entity.findOne(filterCondition);
-      return entity || null; 
+      return entity || null;
     } catch (error) {
-      return null; 
+      return null;
     }
   }
 

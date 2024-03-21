@@ -11,7 +11,7 @@ export class FileEntity {
   @PrimaryGeneratedColumn()
   id: number; // [ShDVR]: #Note / ID
 
-  @Column({ unique: true })   
+  @Column({ unique: true })
   filename: string; // [ShDVR]: #Note / Уникальное имя приложения которое генерируем при получении файла
 
   @Column()

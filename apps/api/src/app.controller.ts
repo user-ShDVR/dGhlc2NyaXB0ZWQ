@@ -64,7 +64,7 @@ export class AppController {
   ) {
     return this.requestService.sendRequest(this.authService, 'create-user', {
       product,
-      hwid: createUserDto.hwid,
+      email: createUserDto.email,
     });
   }
   @ApiTags('online')
@@ -83,27 +83,27 @@ export class AppController {
   @ApiTags('files')
   @Get('file/:product')
   async getFile(@Param('product') product: string, @Res() res: Response) {
-      const file: any = await this.requestService.sendRequest(
-        this.filesService,
-        'get-file',
-        { product },
-      );
-      const filePath = join(
-        __dirname,
-        '..',
-        '..',
-        '..',
-        '..',
-        '..',
-        '..',
-        'uploads',
-        file.filename,
-      );
-      res.header(
-        'Content-Disposition',
-        `attachment; filename=${file.originalName}`,
-      );
-      return res.sendFile(filePath);
+    const file: any = await this.requestService.sendRequest(
+      this.filesService,
+      'get-file',
+      { product },
+    );
+    const filePath = join(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      '..',
+      '..',
+      'uploads',
+      file.filename,
+    );
+    res.header(
+      'Content-Disposition',
+      `attachment; filename=${file.originalName}`,
+    );
+    return res.sendFile(filePath);
   }
   @ApiTags('files')
   @Get('fileVersion/:product')
@@ -133,7 +133,7 @@ export class AppController {
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
           fileType:
-          /^(application\/x-msdownload|application\/x-msdos-program|application\/x-dosexec|application\/octet-stream)$/,
+            /^(application\/x-msdownload|application\/x-msdos-program|application\/x-dosexec|application\/octet-stream)$/,
         })
         .addMaxSizeValidator({ maxSize: 25 * 1024 * 1024 })
         .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
@@ -142,16 +142,15 @@ export class AppController {
     @Param('product') product: string,
     @Body() uploadFile: UploadFileDto,
   ) {
-
-      const res = await this.requestService.sendRequest(
-        this.filesService,
-        'upload-file',
-        {
-          file: { product, version: uploadFile.version, ...file },
-        },
-      );
-      return res;
-      // unlinkSync(`./uploads/${file.filename}`); // [ShDVR]: #TODO обернуть trycatch и при ошибке удалять файл
+    const res = await this.requestService.sendRequest(
+      this.filesService,
+      'upload-file',
+      {
+        file: { product, version: uploadFile.version, ...file },
+      },
+    );
+    return res;
+    // unlinkSync(`./uploads/${file.filename}`); // [ShDVR]: #TODO обернуть trycatch и при ошибке удалять файл
   }
   @ApiTags('files')
   @ApiConsumes('multipart/form-data')
@@ -181,15 +180,14 @@ export class AppController {
     @Param('product') product: string,
     @Body() uploadFile: UploadFileDto,
   ) {
-
-      const res = await this.requestService.sendRequest(
-        this.filesService,
-        'update-file',
-        {
-          file: { product, version: uploadFile.version, ...file },
-        },
-      );
-      return res;
-      // unlinkSync(`./uploads/${file.filename}`);  // [ShDVR]: #TODO обернуть trycatch и при ошибке удалять файл
+    const res = await this.requestService.sendRequest(
+      this.filesService,
+      'update-file',
+      {
+        file: { product, version: uploadFile.version, ...file },
+      },
+    );
+    return res;
+    // unlinkSync(`./uploads/${file.filename}`);  // [ShDVR]: #TODO обернуть trycatch и при ошибке удалять файл
   }
 }

@@ -17,7 +17,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   imports: [
     PostgresDBModule,
     SharedModule.registerRmq('AUTH_SERVICE', process.env.RABBITMQ_AUTH_QUEUE),
-    TypeOrmModule.forFeature([UserEntity,UserStatisticEntity]),
+    TypeOrmModule.forFeature([UserEntity, UserStatisticEntity]),
   ],
   controllers: [PresenceController],
   providers: [

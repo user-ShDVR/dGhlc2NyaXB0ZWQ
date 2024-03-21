@@ -1,5 +1,10 @@
 import { FileRepositoryInterface } from '@app/shared';
-import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { IUploadFile } from './interfaces/ActiveUser.interface';
 import { RpcException } from '@nestjs/microservices';
 
@@ -29,20 +34,26 @@ export class FilesService {
       throw new RpcException({ statusCode: 404, message: 'File not found' });
     }
 
-    return {version: res.version};
+    return { version: res.version };
   }
 
   async uploadFile(file: IUploadFile) {
     const fileExtName = file.originalname.split('.').pop();
     const res = await this.fileRepository.findByConditionWithoutFail({
-      where: { product: `${file.product}-${fileExtName === "exe" ? "loader" : "driver"}` },
+      where: {
+        product: `${file.product}-${
+          fileExtName === 'exe' ? 'loader' : 'driver'
+        }`,
+      },
     });
     if (res) {
       throw new ConflictException();
     } else {
       const currentTime = new Date();
       return this.fileRepository.save({
-        product: `${file.product}-${fileExtName === "exe" ? "loader" : "driver"}`,
+        product: `${file.product}-${
+          fileExtName === 'exe' ? 'loader' : 'driver'
+        }`,
         filename: file.filename,
         originalName: file.originalname,
         mimetype: file.mimetype,
@@ -56,12 +67,16 @@ export class FilesService {
   async updateFile(file: IUploadFile) {
     const fileExtName = file.originalname.split('.').pop();
     const existingFile = await this.fileRepository.findByConditionWithoutFail({
-      where: { product: `${file.product}-${fileExtName === "exe" ? "loader" : "driver"}` },
+      where: {
+        product: `${file.product}-${
+          fileExtName === 'exe' ? 'loader' : 'driver'
+        }`,
+      },
     });
-  
+
     if (existingFile) {
       const currentTime = new Date();
-  
+
       // Обновляем поля существующего файла
       existingFile.filename = file.filename;
       existingFile.originalName = file.originalname;
@@ -69,7 +84,7 @@ export class FilesService {
       existingFile.size = file.size;
       existingFile.version = file.version;
       existingFile.uploadDate = currentTime;
-  
+
       // Сохраняем обновленный файл в базе данных
       return this.fileRepository.save(existingFile);
     } else {

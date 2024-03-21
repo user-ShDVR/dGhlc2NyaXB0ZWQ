@@ -36,9 +36,7 @@ import { dataSourceOptions } from './db/data-source';
     //   inject: [ConfigService],
     // }),
 
-    TypeOrmModule.forFeature([
-      UserEntity,
-    ]),
+    TypeOrmModule.forFeature([UserEntity]),
   ],
   controllers: [AuthController],
   providers: [

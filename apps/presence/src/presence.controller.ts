@@ -1,4 +1,9 @@
-import { ConflictException, Controller, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Controller,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import {
   Ctx,
   MessagePattern,
@@ -17,7 +22,7 @@ export class PresenceController {
     private readonly sharedService: SharedService,
     private readonly presenceService: PresenceService,
   ) {}
-  
+
   @MessagePattern('get-active-users')
   async getActiveUsers(
     @Ctx() context: RmqContext,
@@ -27,25 +32,32 @@ export class PresenceController {
       this.sharedService.acknowledgeMessage(context);
       return await this.presenceService.getActiveUsers(payload.product);
     } catch (error) {
-      return error
+      return error;
     }
   }
 
   @MessagePattern('set-active-user')
   async setActiveUser(
     @Ctx() context: RmqContext,
-    @Payload() payload: { product: string, hwid: string, key: string },
+    @Payload() payload: { product: string; hwid: string; key: string },
   ) {
     try {
       this.sharedService.acknowledgeMessage(context);
-      return await this.presenceService.setActiveUser(payload.product, payload.hwid, payload.key);
+      return await this.presenceService.setActiveUser(
+        payload.product,
+        payload.hwid,
+        payload.key,
+      );
     } catch (error) {
       if (error instanceof NotFoundException) {
-        throw new RpcException({ statusCode: 404, message: "User not found" });
+        throw new RpcException({ statusCode: 404, message: 'User not found' });
       } else if (error instanceof UnauthorizedException) {
-        throw new RpcException({ statusCode: 403, message: "This key is expired" });
+        throw new RpcException({
+          statusCode: 403,
+          message: 'This key is expired',
+        });
       } else {
-        throw error; 
+        throw error;
       }
     }
   }

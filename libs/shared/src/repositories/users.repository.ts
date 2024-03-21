@@ -25,10 +25,28 @@ export class UsersRepository
     });
   }
 
-  public async setActiveUser(hwid: string, product: string, data: DeepPartial<UserEntity>): Promise<UpdateResult> {
+  public async setActiveUser(
+    hwid: string,
+    product: string,
+    data: DeepPartial<UserEntity>,
+  ): Promise<UpdateResult> {
     return await this.userRepository.update(
       { hwid: hwid, product: product },
       data,
     );
+  }
+  async findByProductAndEmail(
+    product: string,
+    email: string,
+  ): Promise<UserEntity | null> {
+    try {
+      return await this.userRepository.findOne({ where: { product, email } });
+    } catch (error) {
+      console.error(
+        'Error occurred while finding user by product and email:',
+        error,
+      );
+      return null;
+    }
   }
 }

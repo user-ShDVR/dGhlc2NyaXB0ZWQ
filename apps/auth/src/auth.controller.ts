@@ -1,4 +1,9 @@
-import { Controller, UseGuards, Inject, ConflictException } from '@nestjs/common';
+import {
+  Controller,
+  UseGuards,
+  Inject,
+  ConflictException,
+} from '@nestjs/common';
 import {
   Ctx,
   MessagePattern,
@@ -30,17 +35,22 @@ export class AuthController {
   }
 
   @MessagePattern('create-user')
-  async createUser(@Ctx() context: RmqContext, @Payload() payload: { product: string, hwid: string, }) {
+  async createUser(
+    @Ctx() context: RmqContext,
+    @Payload() payload: { product: string; email: string },
+  ) {
     this.sharedService.acknowledgeMessage(context);
     try {
-      return await this.authService.createUser(payload.product, payload.hwid);
+      return await this.authService.createUser(payload.product, payload.email);
     } catch (error) {
       if (error instanceof ConflictException) {
-        throw new RpcException({ statusCode: 409, message: "Такой пользователь уже существует в данном продукте" });
+        throw new RpcException({
+          statusCode: 409,
+          message: 'Такой пользователь уже существует в данном продукте',
+        });
       } else {
-        throw error; 
+        throw error;
       }
     }
-    
   }
 }
